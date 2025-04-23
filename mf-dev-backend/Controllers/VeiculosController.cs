@@ -16,8 +16,8 @@ namespace mf_dev_backend.Controllers
         // A função Index() é responsável por retornar a lista de veículos cadastrados.
         public async Task<IActionResult> Index()
         {
-            var dados = await _context.Veiculos.ToListAsync();
-            return View(dados);
+            var veiculo = await _context.Veiculos.ToListAsync();
+            return View(veiculo);
         }
 
         // CREATE
@@ -30,13 +30,10 @@ namespace mf_dev_backend.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Veiculo veiculo)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Veiculos.Add(veiculo);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
-            
+            _context.Veiculos.Add(veiculo);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+
             return View(veiculo);
         }
 
@@ -66,12 +63,10 @@ namespace mf_dev_backend.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                _context.Veiculos.Update(veiculo);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
+            
+            _context.Veiculos.Update(veiculo);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
 
             return View();
         }
@@ -134,6 +129,29 @@ namespace mf_dev_backend.Controllers
 
             // Retorna a view com o veículo encontrado
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Relatorio(int? id)
+        {
+            if(id == null)
+                return NotFound();
+
+            var veiculo = await _context.Veiculos.FindAsync(id);
+
+            if (veiculo == null)
+                return NotFound();
+
+            var consumos = await _context.Consumos
+                .Where(c => c.VeiculoId == id)
+                .OrderByDescending(c => c.Data)
+                .ToListAsync();
+
+            decimal total = consumos.Sum(c => c.Valor);
+
+            ViewBag.Veiculo = veiculo;
+            ViewBag.Total = total;
+
+            return View(consumos);
         }
     }
 }

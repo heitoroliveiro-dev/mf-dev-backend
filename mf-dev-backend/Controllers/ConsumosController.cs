@@ -28,7 +28,7 @@ namespace mf_dev_backend.Controllers
         // GET: Consumos/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Consumos == null)
             {
                 return NotFound();
             }
@@ -55,15 +55,13 @@ namespace mf_dev_backend.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Create([Bind("Id,Descricao,Data,Valor,Km,Tipo,VeiculoId")] Consumo consumo)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(consumo);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            _context.Consumos.Add(consumo);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+            
             ViewData["VeiculoId"] = new SelectList(_context.Veiculos, "Id", "Nome", consumo.VeiculoId);
             return View(consumo);
         }
@@ -71,7 +69,7 @@ namespace mf_dev_backend.Controllers
         // GET: Consumos/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Consumos == null)
             {
                 return NotFound();
             }
@@ -97,8 +95,7 @@ namespace mf_dev_backend.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
+            
                 try
                 {
                     _context.Update(consumo);
@@ -115,8 +112,8 @@ namespace mf_dev_backend.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
-            }
+                return RedirectToAction("Index");
+            
             ViewData["VeiculoId"] = new SelectList(_context.Veiculos, "Id", "Nome", consumo.VeiculoId);
             return View(consumo);
         }
@@ -124,7 +121,7 @@ namespace mf_dev_backend.Controllers
         // GET: Consumos/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Consumos == null)
             {
                 return NotFound();
             }
@@ -145,6 +142,10 @@ namespace mf_dev_backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (_context.Consumos == null)
+            {
+                return Problem("Entity set 'AppDbContext.Consumos'  is null.");
+            }
             var consumo = await _context.Consumos.FindAsync(id);
             if (consumo != null)
             {
