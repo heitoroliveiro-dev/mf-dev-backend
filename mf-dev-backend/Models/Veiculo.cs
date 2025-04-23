@@ -17,9 +17,11 @@ namespace mf_dev_backend.Models
         public string Placa { get; set; }
 
         [Required(ErrorMessage = "O campo {0} é obrigatório.")]
+        [Display(Name = "Ano de Fabricação")]
         public int AnoFabricacao { get; set; }
 
         [Required(ErrorMessage = "O campo {0} é obrigatório.")]
+        [Display(Name = "Ano do Modelo")]
         public int AnoModelo { get; set; }
     }
 }
